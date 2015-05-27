@@ -14,7 +14,7 @@ autoreconf
 #export MA=$HOME
 #export MA=$HOME/MouseAtlas/Build/
 # export MA=/opt/MouseAtlas
-export MA=/disk/data/VFBTools/Woolz2013Full/
+export MA=/disk/data/VFBTools/Woolz.compiled/
 
 # Set C and C++ flags
 #export CFLAGS=-g
@@ -30,7 +30,6 @@ export CXXFLAGS='-O3 -mfpmath=sse'
 # 	    --enable-openmp
 	    
 ./configure --with-fcgi-incl=/disk/data/VFBTools/WlzIIPSrv/fcgi/include --with-fcgi-lib=/disk/data/VFBTools/WlzIIPSrv/fcgi/libfcgi \
-            --with-nifti-incl=$MA/include -with-nifti-lib=$MA/lib \
 	    --with-jpeg-incl=$MA/include -with-jpeg-lib=$MA/lib \
 	    --with-tiff-incl=$MA/include -with-tiff-lib=$MA/lib \
             --with-wlz-incl=$MA/include --with-wlz-lib=$MA/lib \
