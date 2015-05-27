@@ -14,7 +14,7 @@ autoreconf -i --force
 #export MA=$HOME
 #export MA=$HOME/MouseAtlas/Build/
 # export MA=/opt/MouseAtlas
-export MA=/disk/data/VFBTools/Woolz.compiled
+export MA=/disk/data/VFBTools/Woolz2015
 
 # Set C and C++ flags
 #export CFLAGS=-g
@@ -23,17 +23,17 @@ export CFLAGS='-O3 -mfpmath=sse'
 export CXXFLAGS='-O3 -mfpmath=sse'
 
 # Configure
-./configure --with-fcgi-incl=/opt/fcgi/include --with-fcgi-lib=/opt/fcgi/lib \
-            --with-jpeg-incl=$MA/include -with-jpeg-lib=$MA/lib \
-	    --with-tiff-incl=$MA/include -with-tiff-lib=$MA/lib \
-            --with-wlz-incl=$MA/include --with-wlz-lib=$MA/lib \
-	    --enable-openmp
-	    
-# ./configure --with-fcgi-incl=/disk/data/VFBTools/WlzIIPSrv/fcgi/include --with-fcgi-lib=/disk/data/VFBTools/WlzIIPSrv/fcgi/libfcgi \
-# 	    --with-jpeg-incl=$MA/include -with-jpeg-lib=$MA/lib \
+# ./configure --with-fcgi-incl=/opt/fcgi/include --with-fcgi-lib=/opt/fcgi/lib \
+#             --with-jpeg-incl=$MA/include -with-jpeg-lib=$MA/lib \
 # 	    --with-tiff-incl=$MA/include -with-tiff-lib=$MA/lib \
 #             --with-wlz-incl=$MA/include --with-wlz-lib=$MA/lib \
-# 	    --with-log4cpp-incl=$MA/include --with-log4cpp-lib=$MA/lib \
-#             --enable-static --with-pic \
 # 	    --enable-openmp
+	    
+./configure --with-fcgi-incl=/disk/data/VFBTools/WlzIIPSrv/fcgi/include --with-fcgi-lib=/disk/data/VFBTools/WlzIIPSrv/fcgi/libfcgi \
+	    --with-jpeg-incl=$MA/include -with-jpeg-lib=$MA/lib \
+	    --with-tiff-incl=$MA/include -with-tiff-lib=$MA/lib \
+            --with-wlz-incl=$MA/include --with-wlz-lib=$MA/lib \
+	    --with-log4cpp-incl=$MA/include --with-log4cpp-lib=$MA/lib \
+            --enable-static --with-pic \
+	    --enable-openmp
 
