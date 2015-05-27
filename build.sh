@@ -6,10 +6,10 @@
 
 set -x
 # In most cases a simple autoreconf should be sufficient
-autoreconf
+# autoreconf
 # If you hit problems with missing files or libtool use the following
 # autoreconf
-# autoreconf -i --force
+autoreconf -i --force
 
 #export MA=$HOME
 #export MA=$HOME/MouseAtlas/Build/
