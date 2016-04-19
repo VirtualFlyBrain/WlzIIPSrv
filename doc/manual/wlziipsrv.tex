@@ -22,7 +22,7 @@
     pdfmenubar=true,
     pdffitwindow=false,
     pdfstartview={FitH},
-    pdftitle={The Woolz Internet Image Protocol (IIP) Server (Version 1.0.2)},
+    pdftitle={The Woolz Internet Image Protocol (IIP) Server (Version 1.1.5)},
     pdfauthor={Bill Hill},
     pdfsubject={Woolz Internet Image Protocol Server},
     pdfcreator={Bill Hill},
@@ -37,7 +37,7 @@
 
 \newfont{\sltt}{cmsltt10}  % font for command argument (slanted typewriter)
 
-\title{The Woolz Internet Image Protocol (IIP) Server (Version 1.0.2)}
+\title{The Woolz Internet Image Protocol (IIP) Server (Version 1.1.4)}
 \author{
   Zsult Husz \footnote{Supported by {NIH} under grant \#1R01MH070370-01A2.} \\
   \and
@@ -308,7 +308,7 @@ Specify a 2D query point relative to tile or display coordinate system.\\
 \hrule\noindent
 \begin{tabular}{p{\commandcolumna}p{\commandcolumnb}p{\commandcolumnc}}
 \com{DPT} & \textbf{Purpose} &
-Specify the rendering mode\\
+Specify the rendering depth\\
 & \textbf{Syntax} & \texttt{DPT={\sltt depth}}\\
 & \textbf{Input Parameters}& \texttt{FLOAT {\sltt depth}} rendering depth for projection rendering modes, depth zero implies no limit\\
 & \textbf{Response} & none\\
@@ -629,13 +629,17 @@ are not defined for a Woolz object.
 Image processing expressions may be built using the components of
 Woolz compound objects and basic image processing operators.
 The operators supported are:
-difference
+background,
+difference,
 dilation,
 domain,
 erosion,
+fill,
 intersection,
 occupancy,
-threshold
+setvalue,
+threshold,
+transfer
 and
 union.
 Image processing expressions are built from compound object
@@ -668,14 +672,18 @@ are described in table \ref{tbl:imgpops}.
 \hline
 \emph{exp list}    	&:=& \verb=(=\emph{exp}\verb=|=\emph{idx list}\verb=)(=,\emph{exp list}\verb=)= \\
 \emph{exp}         	&:=& \emph{idx}\verb=|= \\
+	    &  & background\verb=(=\emph{exp},\emph{val}\verb=) | = \\
 	    &  & diff\verb=(=\emph{exp},\emph{exp}\verb=) |= \\
 	    &  & dilation\verb=(=\emph{exp},\emph{uint}\verb=) |= \\
 	    &  & domain\verb=(=\emph{exp}\verb=) |= \\
 	    &  & erosion\verb=(=\emph{exp},\emph{uint}\verb=) |= \\
+	    &  & fill\verb=(=\emph{exp}\verb=) |= \\
 	    &  & intersect\verb=(=\emph{exp list},\emph{exp list}\verb=) |= \\
 	    &  & occupancy\verb=(=\emph{index list}\verb=?) |= \\
-	    &  & threshold\verb=(=\emph{exp},\emph{val},\emph{cmp}\verb=)= \\
-	    &  & union\verb=(=\emph{exp list}\verb=|=\emph{idx list},\emph{exp list}\verb=|=\emph{idx list}\verb=) |= \\
+	    &  & setvalue\verb=(=\emph{exp},\emph{val}\verb=) |= \\
+	    &  & threshold\verb=(=\emph{exp},\emph{val},\emph{cmp}\verb=) |= \\
+	    &  & transfer\verb=(=\emph{exp},\emph{exp}\verb=) |= \\
+	    &  & union\verb=(=\emph{exp list}\verb=|=\emph{idx list},\emph{exp list}\verb=|=\emph{idx list}\verb=)= \\
 \emph{idx list}    	&:=& \verb=(=\emph{uint}\verb=|=\emph{idx range}\verb=|=\emph{idx list},\emph{idx list}\verb=)= \\
 \emph{idx range}    	&:=& \emph{uint}\verb=-=\emph{uint} \\
 \emph{idx}         	&:=& \verb=[0-9]+= \\
@@ -694,18 +702,29 @@ are described in table \ref{tbl:imgpops}.
 \hline
 \textbf{Operator}                                                   &  \textbf{Description} \\
 \hline
+background\verb=(=\emph{exp},\emph{value}\verb=)=                   & Sets the background value (value outside the
+                                                                      expresion object's domain) to the given value. \\
 diff\verb=(=\emph{exp},\emph{exp}\verb=)=                           & The difference between the two given domains. \\
 dilation\verb=(=\emph{exp},\emph{radius}\verb=)=                    & The dilation of the domain by \emph{radius}\ voxels. \\
-domain\verb=(=\emph{exp}\verb=)=                                    & The domain of an object. \\
+domain\verb=(=\emph{exp}\verb=)=                                    & The domain of the expresion's object. \\
 erosion\verb=(=\emph{exp},\emph{radius}\verb=)=                     & The erosion of the domain by \emph{radius}\ voxels. \\
+fill\verb=(=\emph{exp}\verb=)=                                      & Fills all holes not connected to the outside in the
+                                                                      given expression's domain. \\
 intersect\verb=(=\emph{exp list}\verb=)=                            & The intersection of the domains in the given lists. \\
 occupancy\verb=(=\emph{idx list}\verb=?)=                           & The domain occupancy in the optional list. \\
+setvalue\verb=(=\emph{exp},\emph{value}\verb=)=                     & Creates an object with the domain of the given
+                                                                      expression and all values set to the given value. \\
 threshold\verb=(=\emph{exp},\emph{value},\emph{comparison}\verb=)=  & Creates an object where the image values satisfy
 						                      the given \emph{value} and \emph{comparison}.
 								      Here the value is floating point and valid comparisons
 								      are \verb=lt= (less than), \verb=le= (less than or equal), \verb=eq= (equal),
 								      \verb=ge= (greater than or equal) and \verb=gt)= (greater than). \\
-union\verb=(=\emph{exp list}\verb=|=\emph{idx list},\emph{exp list}\verb=|=\emph{idx list}\verb=)=                                                  & The union of the domains in the given lists. \\
+transfer\verb=(=\emph{exp},\emph{exp}\verb=)=                        & Creates a new object with the domain of the first
+                                                                      expression's object and the values of the second.
+								      Values outside the domain of the second but within
+								      the first are set to the second's background value. \\
+union\verb=(=\emph{exp list}\verb=|=\emph{idx list},
+             \emph{exp list}\verb=|=\emph{idx list}\verb=)=         & The union of the domains in the given lists. \\
 \hline
 \end{tabular}
 \caption{Descriptions of image processing operators}.
@@ -1012,7 +1031,8 @@ figure\ref{fig:proxyarchit}
 \subsection{WlzIIPProxy options}
 Usage:
 \begin{verbatim}
-WlzIIPProxy [-p<portnumber>] [-c<conf_filename>] [-l<log_filename>] [-v<loglevel>] [-h]
+WlzIIPProxy [-p<portnumber>] [-c<conf_filename>] [-l<log_filename>]
+            [-v<loglevel>] [-h]
 \end{verbatim}
 
 where the options are:
@@ -1088,7 +1108,9 @@ Do not forget to set read and execute access modes!
 
 \subsection{Customisable parameters}
 \label{sec:custom_param}
-In addition to the IIPSrv \cite[p.25]{IIPSRV097} configuration parameters, \texttt{WlzIIPSrv} allows with the  parameters from Table~\ref{tab:parameters} changing the default cache and tile sizes.
+In addition to the IIPSrv \cite[p.25]{IIPSRV097} configuration parameters,
+\texttt{WlzIIPSrv} allows with the  parameters from
+Table~\ref{tab:parameters} changing the logging, caches and tile sizes.
 
 \begin{table}[!htbp]
 \centering
@@ -1096,6 +1118,11 @@ In addition to the IIPSrv \cite[p.25]{IIPSRV097} configuration parameters, \text
 \hline
 \textbf{Parameter}          & \textbf{Description}                        & \textbf{Default value} \\
 \hline
+\texttt{LOGFILE}                         & Location of log file                                 & /tmp/iipsrv.log \\
+\texttt{LOGLEVEL}                        & Log level (EMERG, FATAL,                             & WARN \\
+                                         & ALERT, CRIT, ERROR, WARN,                            & \\
+					 & NOTICE, INFO, DEBUG)                                 & \\
+\texttt{FILESYSTEM\_PREFIX}              & Prefix directory for images                          & '' \\
 \texttt{MAX\_WLZOBJ\_CACHE\_SIZE}        & Maximum Woolz object cache size in MBs               & 1024 \\
 \texttt{MAX\_WLZOBJ\_CACHE\_COUNT}	 & Maximum number of Woolz object in cache		& 100 \\
 \texttt{WLZ\_TILE\_WIDTH}                & Tile width in pixels                                 & 100  \\
@@ -1178,9 +1205,10 @@ FastCgiServer /opt/apache/fcgi-bin/wlziipsrv.fcgi \
 -initial-env LOGFILE=/opt/apache/logs/wlziipsrv.log \
 -initial-env LOGLEVEL=WARN \
 -initial-env JPEG_QUALITY=50 \
+-initial-env FILESYSTEM_PREFIX=/export/images \
 -initial-env MAX_CVT=3000 \
--initial-env MAX_IMAGE_CACHE_SIZE=1000 \
 -initial-env MAX_WLZOBJ_CACHE_COUNT=100 \
+-initial-env MAX_WLZOBJ_CACHE_SIZE=4000 \
 -initial-env WLZ_TILE_WIDTH="100" \
 -initial-env WLZ_TILE_HEIGHT="100"
 \end{verbatim}
