@@ -1,6 +1,6 @@
 FROM jgeusebroek/webdav
 
-COPY lighttpd.conf /config/lighttpd.conf
+COPY docker/lighttpd.conf /config/lighttpd.conf
 
 
 
