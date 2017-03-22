@@ -1,5 +1,7 @@
 FROM jgeusebroek/webdav
 
+RUN apt-get -y update && apt-get -y install git autoconf
+
 COPY docker/lighttpd.conf /config/lighttpd.conf
 
 COPY docker/.htpasswd /config/.htpasswd
