@@ -1,6 +1,8 @@
 FROM jgeusebroek/webdav
 
-RUN apt-get -y update && apt-get -y install git autoconf
+RUN apk add --update git 
+
+RUN apk add --update autoconf
 
 COPY docker/lighttpd.conf /config/lighttpd.conf
 
