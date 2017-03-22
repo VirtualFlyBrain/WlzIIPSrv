@@ -3,13 +3,13 @@
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _WlzExpression_h[] = "University of Edinburgh $Id$";
+static char _WlzExpression_h[] = "University of Edinburgh $Id: c09d7abbfc9724384757b1531902033b4be4f9c7 $";
 #endif
 /*!
 * \file         WlzExpression.h
 * \author       Bill Hill
 * \date         October 2011
-* \version      $Id$
+* \version      $Id: c09d7abbfc9724384757b1531902033b4be4f9c7 $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -85,7 +85,9 @@ typedef enum _WlzExpCmpType
 typedef enum _WlzExpParamType
 {
   WLZ_EXP_PRM_NONE	= 0,
+  WLZ_EXP_PRM_INT,
   WLZ_EXP_PRM_UINT,
+  WLZ_EXP_PRM_FLOAT,
   WLZ_EXP_PRM_CMP,
   WLZ_EXP_PRM_EXP,
   WLZ_EXP_PRM_OBJ
@@ -93,8 +95,10 @@ typedef enum _WlzExpParamType
 
 typedef union _WlzExpOpParamVal
 {
-  void		*v;
+  void		 *v;
+  int   	 i;
   unsigned int   u;
+  double	 d;
   WlzExpCmpType	 cmp;
   WlzObject	 *obj;
   struct _WlzExp *exp;
@@ -144,6 +148,7 @@ extern const char      		*WlzExpCmpToStr(
 				  WlzExpCmpType cmp);
 extern WlzObject      		*WlzExpEval(
 				  WlzObject *inObj,
+				  int cpxExp,
 				  WlzExp *e,
 				  WlzErrorNum *dstErr);
 extern char            		*WlzExpStr(
@@ -177,7 +182,7 @@ extern WlzExp          		*WlzExpMakeSetValue(
 				  unsigned int val);
 extern WlzExp          		*WlzExpMakeThreshold(
 				  WlzExp *e,
-				  unsigned int val,
+				  WlzExpOpParam val,
 				  WlzExpCmpType cmp);
 extern WlzExp          		*WlzExpMakeTransfer(
 				  WlzExp *e0,

@@ -3,13 +3,13 @@
 #if defined(__GNUC__)
 #ident "MRC HGU $Id$"
 #else
-static char _WlzExpLexer_lex[] = "MRC HGU $Id$";
+static char _WlzExpLexer_lex[] = "MRC HGU $Id: 5000ec4c19b1ef7e5b2c6d3bdd57a1bdeb9ebffa $";
 #endif
 /*!
 * \file         WlzExpLexer.lex
 * \author       Bill Hill
 * \date         October 2011
-* \version      $Id$
+* \version      $Id: 5000ec4c19b1ef7e5b2c6d3bdd57a1bdeb9ebffa $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -47,7 +47,7 @@ static char _WlzExpLexer_lex[] = "MRC HGU $Id$";
 %}
  
 %option reentrant noyywrap never-interactive nounistd
-%option bison-bridge
+%option bison-bridge noinput nounput
  
 OP      	"("
 CP      	")"
@@ -69,13 +69,24 @@ UNION       	"union"
 
  
 UINT      	[0-9]+
+INT		-?{UINT}
+REAL		{INT}[.]{UINT}*
+FLOAT 		({INT}|{REAL})([eE]{INT})?
 CMP		("lt")|("le")|("eq")|("ge")|("gt")
  
 %%
  
 {UINT}        	{
-                  sscanf(yytext,"%d",&yylval->u);
+                  sscanf(yytext,"%u",&(yylval->u));
                   return(TOKEN_UINT);
+		}
+{INT}        	{
+                  sscanf(yytext,"%d",&(yylval->i));
+                  return(TOKEN_INT);
+		}
+{FLOAT}        	{
+                  sscanf(yytext,"%lg",&(yylval->d));
+                  return(TOKEN_FLOAT);
 		}
 {CMP}        	{
                   yylval->cmp = WlzExpCmpFromStr(yytext);

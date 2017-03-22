@@ -3,13 +3,13 @@
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _Environment_h[] = "University of Edinburgh $Id$";
+static char _Environment_h[] = "University of Edinburgh $Id: 3ea757584907abcacf44474f062bba2ddcfc98ad $";
 #endif
 /*!
 * \file         Environment.h
 * \author       Ruven Pillay, Zsolt Husz, Bill Hill
 * \date         June 2008
-* \version      $Id$
+* \version      $Id: 3ea757584907abcacf44474f062bba2ddcfc98ad $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -55,6 +55,7 @@ static char _Environment_h[] = "University of Edinburgh $Id$";
 #define FILENAME_PATTERN 	"_pyr_"
 #define JPEG_QUALITY 		75
 #define MAX_CVT 		5000
+#define COMPLEX_SELECTION       0
 
 #define WLZ_TILE_HEIGHT		100
 #define WLZ_TILE_WIDTH 		100
@@ -230,6 +231,15 @@ class Environment {
     else max_CVT = MAX_CVT;
 
     return max_CVT;
+  }
+
+  static int getComplexSelection(){
+    int complex_selection = COMPLEX_SELECTION;
+    char* envpara = getenv( "COMPLEX_SELECTION" );
+    if(envpara){
+      complex_selection = atoi(envpara);
+    }
+    return complex_selection;
   }
 
 };

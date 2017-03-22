@@ -3,13 +3,13 @@
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _WlzImage_h[] = "University of Edinburgh $Id$";
+static char _WlzImage_h[] = "University of Edinburgh $Id: e224d7ffcc33ffb1a5309971d032fb4f30533fc1 $";
 #endif
 /*!
 * \file         WlzImage.h
 * \author       Zsolt Husz, Bill Hill
 * \date         June 2008
-* \version      $Id$
+* \version      $Id: e224d7ffcc33ffb1a5309971d032fb4f30533fc1 $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -115,7 +115,8 @@ class WlzImage : public IIPImage
     				throw(std::string);
     bool			isViewChanged();
     WlzObject			*WlzImageExpEval(
-    				  WlzExp *e);
+				  int cpxExp,
+    				  WlzExp *exp);
     // Utility functions
     float 			*getTrueVoxelSize()
     				throw(std::string);
@@ -139,13 +140,16 @@ class WlzImage : public IIPImage
     void 			getAngles(
     				  double &theta,
 				  double &phi,
-				  double &zeta);
+				  double &zeta,
+				  double &dist);
     void 			get3DBoundingBox(
     				  WlzIBox3 &box)
 				throw(std::string);
     void 			getTransformed3DBBox(
     				  WlzIBox3 &box)
 				throw(std::string);
+    bool			getCentroid(
+    				  int idx, WlzDVertex3 &pos);
     WlzDVertex3 		getCurrentPointIn3D();
     WlzDVertex3 		getTransformed3DPoint();
     int 			getForegroundObjects(

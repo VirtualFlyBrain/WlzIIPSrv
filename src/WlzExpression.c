@@ -1,13 +1,13 @@
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _WlzExpression_c[] = "University of Edinburgh $Id$";
+static char _WlzExpression_c[] = "University of Edinburgh $Id: 59d61fd8b726b84bcd24dcaef00e50a5a5c54772 $";
 #endif
 /*!
 * \file         WlzExpression.c
 * \author       Bill Hill
 * \date         October 2011
-* \version      $Id$
+* \version      $Id: 59d61fd8b726b84bcd24dcaef00e50a5a5c54772 $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -53,6 +53,8 @@ extern "C"
 {
 #endif
 
+static int			WlzExpCost(
+				  WlzExp *e);
 static int			WlzExpIndexArraySortFn(
 				  const void *v0,
 				  const void *v1);
@@ -66,6 +68,11 @@ static char			*WlzExpIndexListToStr(
 				  WlzExp *e,
 				  int *sLen,
 				  WlzErrorNum *dstErr);
+static void 			WlzExpIncParamValue(
+				  WlzExpOpParam *val,
+				  int inc);
+static WlzPixelV 		WlzExpParamValueToPixelV(
+				  WlzExpOpParam ev);
 static WlzExp 			*WlzExpIndexListToIndexArray(
 				  WlzExp *e,
                                   WlzErrorNum *dstErr);
@@ -114,7 +121,7 @@ static WlzObject 		*WlzExpSetvalue(
 				  WlzErrorNum *dstErr);
 static WlzObject 		*WlzExpThreshold(
 				  WlzObject *iObj,
-				  unsigned int val,
+				  WlzExpOpParam val,
 				  WlzExpCmpType cmp,
 				  WlzErrorNum *dstErr);
 static WlzObject 		*WlzExpTransfer(
@@ -444,7 +451,7 @@ WlzExp		*WlzExpMakeOccupancy(WlzExp *e0)
 * 					value set.
 * \param	val			Value to set.
 */
-WlzExp		*WlzExpMakeSetvalue(WlzExp *e0, unsigned int val)
+WlzExp		*WlzExpMakeSetValue(WlzExp *e0, unsigned int val)
 {
   WlzExp	*e;
 
@@ -468,7 +475,7 @@ WlzExp		*WlzExpMakeSetvalue(WlzExp *e0, unsigned int val)
 * \param	val			Threshold value.
 * \param	cmp			Threshold comparison value.
 */
-WlzExp		*WlzExpMakeThreshold(WlzExp *e0, unsigned int val,
+WlzExp		*WlzExpMakeThreshold(WlzExp *e0, WlzExpOpParam val,
 				     WlzExpCmpType cmp)
 {
   WlzExp	*e;
@@ -478,8 +485,7 @@ WlzExp		*WlzExpMakeThreshold(WlzExp *e0, unsigned int val,
     e->type = WLZ_EXP_OP_THRESHOLD;
     e->param[0].type = WLZ_EXP_PRM_EXP;
     e->param[0].val.exp = e0;
-    e->param[1].type = WLZ_EXP_PRM_UINT;
-    e->param[1].val.u = val;
+    e->param[1] = val;
     e->param[2].type = WLZ_EXP_PRM_CMP;
     e->param[2].val.cmp = cmp;
   }
@@ -682,11 +688,17 @@ const char	*WlzExpCmpToStr(WlzExpCmpType cmp)
 * \brief	Evaluates a image processing expression with reference to the
 * 		given object.
 * \param	iObj			Given object.
+* \param	cpxExp			Allow complex (and costly) expressions.
+* 					Possible values are:
+* 					  0 - no,
+* 					  1 - those with fairly low cost,
+* 					  2 or greater - all.
 * \param	e			Morphological expression to be
 * 					evaluated using the given object.
 * \param	dstErr			Destination error pointer, may be NULL.
 */
-WlzObject      *WlzExpEval(WlzObject *iObj, WlzExp *e, WlzErrorNum *dstErr)
+WlzObject      *WlzExpEval(WlzObject *iObj, int cpxExp,
+                           WlzExp *e, WlzErrorNum *dstErr)
 {
   unsigned int	u0;
   WlzObject	*o0 = NULL,
@@ -698,6 +710,10 @@ WlzObject      *WlzExpEval(WlzObject *iObj, WlzExp *e, WlzErrorNum *dstErr)
   if(iObj == NULL)
   {
     errNum = WLZ_ERR_OBJECT_NULL;
+  }
+  else if(WlzExpCost(e) > cpxExp)
+  {
+    errNum = WLZ_ERR_PARAM_DATA;
   }
   else
   {
@@ -715,51 +731,51 @@ WlzObject      *WlzExpEval(WlzObject *iObj, WlzExp *e, WlzErrorNum *dstErr)
 	break;
       case WLZ_EXP_OP_BACKGROUND:
         o0 = WlzAssignObject(     
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	u0 = (unsigned int)(e->param[1].val.u);
         rObj = WlzExpBackground(o0, u0, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_DIFF:
 	o0 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	o1 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[1].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[1].val.exp, &errNum), NULL);
 	rObj = WlzExpDiff(o0, o1, &errNum);
 	(void )WlzFreeObj(o0);
 	(void )WlzFreeObj(o1);
 	break;
       case WLZ_EXP_OP_DILATION:
 	o0 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	u0 = (unsigned int)(e->param[1].val.u);
 	rObj = WlzExpDilation(o0, u0, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_DOMAIN:
         o0 = WlzAssignObject(     
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
         rObj = WlzExpDomain(o0, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_EROSION:
 	o0 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	u0 = e->param[1].val.u;
 	rObj = WlzExpErosion(o0, u0, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_FILL:
         o0 = WlzAssignObject(     
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
         rObj = WlzExpFill(o0, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_INTERSECT:
 	o0 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	o1 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[1].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[1].val.exp, &errNum), NULL);
 	rObj = WlzExpIntersect(o0, o1, &errNum);
 	(void )WlzFreeObj(o0);
 	(void )WlzFreeObj(o1);
@@ -806,37 +822,36 @@ WlzObject      *WlzExpEval(WlzObject *iObj, WlzExp *e, WlzErrorNum *dstErr)
 	break;
       case WLZ_EXP_OP_TRANSFER:
 	o0 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	o1 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[1].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[1].val.exp, &errNum), NULL);
 	rObj = WlzExpTransfer(o0, o1, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_SETVALUE:
 	o0 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	u0 = e->param[1].val.u;
 	rObj = WlzExpSetvalue(o0, u0, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_THRESHOLD:
 	o0 = WlzAssignObject(
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum), NULL);
-	u0 = e->param[1].val.u;
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum), NULL);
 	c = e->param[2].val.cmp;
-	rObj = WlzExpThreshold(o0, u0, c, &errNum);
+	rObj = WlzExpThreshold(o0, e->param[1], c, &errNum);
 	(void )WlzFreeObj(o0);
 	break;
       case WLZ_EXP_OP_UNION:
 	o0 = WlzAssignObject(
 	     (e->param[0].val.v == NULL)?
 	     WlzMakeEmpty(&errNum):
-	     WlzExpEval(iObj, e->param[0].val.exp, &errNum),
+	     WlzExpEval(iObj, cpxExp, e->param[0].val.exp, &errNum),
 	     NULL);
 	o1 = WlzAssignObject(
 	     (e->param[1].val.v == NULL)?
 	     WlzMakeEmpty(&errNum):
-	     WlzExpEval(iObj, e->param[1].val.exp, &errNum),
+	     WlzExpEval(iObj, cpxExp, e->param[1].val.exp, &errNum),
 	     NULL);
 	rObj = WlzExpUnion(o0, o1, &errNum);
 	(void )WlzFreeObj(o0);
@@ -855,6 +870,48 @@ WlzObject      *WlzExpEval(WlzObject *iObj, WlzExp *e, WlzErrorNum *dstErr)
 }
 
 /*!
+* \return	Expression cost.
+* \ingroup	WlzIIPServer
+* \brief	Costs the given expression. The expression cost is ass
+* 		documented in WlzExpEval().
+* \param	e			Expression to be costed.
+*/
+static int	WlzExpCost(WlzExp *e)
+{
+  int		cost = 0;
+
+  if(e)
+  {
+    switch(e->type)
+    {
+      case WLZ_EXP_OP_NONE:       /* FALLTHROUGH */
+      case WLZ_EXP_OP_INDEX:      /* FALLTHROUGH */
+      case WLZ_EXP_OP_INDEXRNG:   /* FALLTHROUGH */
+      case WLZ_EXP_OP_INDEXLST:
+	break;
+      case WLZ_EXP_OP_BACKGROUND: /* FALLTHROUGH */
+      case WLZ_EXP_OP_DOMAIN:
+	cost = 1;
+	break;
+      case WLZ_EXP_OP_DIFF:       /* FALLTHROUGH */
+      case WLZ_EXP_OP_DILATION:   /* FALLTHROUGH */
+      case WLZ_EXP_OP_EROSION:    /* FALLTHROUGH */
+      case WLZ_EXP_OP_FILL:       /* FALLTHROUGH */
+      case WLZ_EXP_OP_INTERSECT:  /* FALLTHROUGH */
+      case WLZ_EXP_OP_OCCUPANCY:  /* FALLTHROUGH */
+      case WLZ_EXP_OP_TRANSFER:   /* FALLTHROUGH */
+      case WLZ_EXP_OP_SETVALUE:   /* FALLTHROUGH */
+      case WLZ_EXP_OP_THRESHOLD:  /* FALLTHROUGH */
+      case WLZ_EXP_OP_UNION:      /* FALLTHROUGH */
+      default:
+	cost = 2;
+	break;
+    }
+  }
+  return(cost);
+}
+
+/*!
 * \return	String or NULL on error.
 * \ingroup	WlzIIPServer
 * \brief	Computes a string representing the given image processing
@@ -869,11 +926,13 @@ WlzObject      *WlzExpEval(WlzObject *iObj, WlzExp *e, WlzErrorNum *dstErr)
 */
 char	      	*WlzExpStr(WlzExp *e, int *dstStrLen, WlzErrorNum *dstErr)
 {
-  int		sLen0,
+  int		i0,
+  		sLen0,
 		sLen1,
 		sLen2;
   unsigned int	u0,
   		u1;
+  double	d0;
   WlzExpCmpType	c;
   char		*s0 = NULL,
   		*s1 = NULL,
@@ -1119,7 +1178,6 @@ char	      	*WlzExpStr(WlzExp *e, int *dstStrLen, WlzErrorNum *dstErr)
 	s0 = WlzExpStr(e->param[0].val.exp, &sLen0, &errNum);
 	if(errNum == WLZ_ERR_NONE)
 	{
-	  u0 = e->param[1].val.u;
 	  c = e->param[2].val.cmp;
 	  switch(c)
 	  {
@@ -1151,7 +1209,24 @@ char	      	*WlzExpStr(WlzExp *e, int *dstStrLen, WlzErrorNum *dstErr)
 	}
 	if(errNum == WLZ_ERR_NONE)
 	{
-	  (void )sprintf(s2, "threshold(%s,%d,%s)", s0, u0, s1);
+	  switch(e->param[1].type)
+	  {
+	    case WLZ_EXP_PRM_INT:
+	      i0 = e->param[1].val.u;
+	      (void )sprintf(s2, "threshold(%s,%d,%s)", s0, i0, s1);
+	      break;
+	    case WLZ_EXP_PRM_UINT:
+	      u0 = e->param[1].val.u;
+	      (void )sprintf(s2, "threshold(%s,%u,%s)", s0, u0, s1);
+	      break;
+	    case WLZ_EXP_PRM_FLOAT:
+	      d0 = e->param[1].val.d;
+	      (void )sprintf(s2, "threshold(%s,%g,%s)", s0, d0, s1);
+	      break;
+	    default:
+	      errNum = WLZ_ERR_PARAM_DATA;
+	      break;
+	  }
 	}
 	AlcFree(s0);
 	break;
@@ -1983,6 +2058,63 @@ static WlzObject *WlzExpSetvalue(WlzObject *iObj, unsigned int val,
 }            
 
 /*!
+* \ingroup	WlzIIPServer
+* \brief	Simply increments the parameter value in place.
+* 		All types are assumed valid.
+* \param	val		Pointer to parameter value with type.
+* \param	inc		If less than zero the values is decremented
+* 				instead.
+*/
+static void 	WlzExpIncParamValue(WlzExpOpParam *val, int inc)
+{
+  switch(val->type)
+  {
+    case WLZ_EXP_PRM_INT:
+      val->val.i += (inc < 0)? -1: 1;
+      break;
+    case WLZ_EXP_PRM_UINT:
+      val->val.u += (inc < 0)? -1: 1;
+      break;
+    case WLZ_EXP_PRM_FLOAT:
+      val->val.d += (inc < 0)? -1.0: 1.0;
+      break;
+    default:
+      break;
+  }
+}
+
+/*!
+* \return	Value as a WlzPixelV.
+* \ingroup	WlzIIPServer
+* \brief	Simply converts the given parameter value to a WlzPixelV.
+* 		All types are assumed valid.
+* \param	ev		Parameter value with type.
+*/
+static WlzPixelV WlzExpParamValueToPixelV(WlzExpOpParam ev)
+{
+  WlzPixelV	pv;
+
+  switch(ev.type)
+  {
+    case WLZ_EXP_PRM_INT:
+      pv.type = WLZ_GREY_INT;
+      pv.v.inv = ev.val.i;
+      break;
+    case WLZ_EXP_PRM_UINT:
+      pv.type = WLZ_GREY_INT;
+      pv.v.inv = (int )WLZ_CLAMP(ev.val.u, 0, INT_MAX);
+      break;
+    case WLZ_EXP_PRM_FLOAT:
+      pv.type= WLZ_GREY_DOUBLE;
+      pv.v.dbv = ev.val.d;
+      break;
+    default:
+      break;
+  }
+  return(pv);
+}
+
+/*!
 * \return	Woolz object or NULL on error.
 * \ingroup	WlzIIPServer
 * \brief	Computes an above, below or at threshold value object
@@ -1994,7 +2126,7 @@ static WlzObject *WlzExpSetvalue(WlzObject *iObj, unsigned int val,
 * \param	cmp			Threshold comparison operator.
 * \param	dstErr			Destination error pointer, may be NULL.
 */
-static WlzObject *WlzExpThreshold(WlzObject *iObj, unsigned int val,
+static WlzObject *WlzExpThreshold(WlzObject *iObj, WlzExpOpParam val,
 				  WlzExpCmpType cmp, WlzErrorNum *dstErr)
 {
   WlzObject     *rObj = NULL;
@@ -2002,7 +2134,6 @@ static WlzObject *WlzExpThreshold(WlzObject *iObj, unsigned int val,
   WlzThresholdType hiLo[2];
   WlzErrorNum   errNum = WLZ_ERR_NONE;
 
-  thrVal.type = WLZ_GREY_INT;
   hiLo[0] = hiLo[1] = WLZ_THRESH_LOW;
   if(iObj == NULL)
   {
@@ -2010,23 +2141,11 @@ static WlzObject *WlzExpThreshold(WlzObject *iObj, unsigned int val,
   }
   else
   {
-    switch(cmp)
+    switch(val.type)
     {
-      case WLZ_EXP_CMP_LT:
-        break;
-      case WLZ_EXP_CMP_LE:
-	val = val + 1;
-        break;
-      case WLZ_EXP_CMP_EQ:
-	val = val + 1;
-        hiLo[1] = WLZ_THRESH_HIGH;
-        break;
-      case WLZ_EXP_CMP_GE:
-        hiLo[0] = WLZ_THRESH_HIGH;
-        break;
-      case WLZ_EXP_CMP_GT:
-        hiLo[0] = WLZ_THRESH_HIGH;
-	val = val + 1;
+      case WLZ_EXP_PRM_INT:   /* FALLTHROUGH */
+      case WLZ_EXP_PRM_UINT:  /* FALLTHROUGH */
+      case WLZ_EXP_PRM_FLOAT:
         break;
       default:
         errNum = WLZ_ERR_PARAM_DATA;
@@ -2035,14 +2154,40 @@ static WlzObject *WlzExpThreshold(WlzObject *iObj, unsigned int val,
   }
   if(errNum == WLZ_ERR_NONE)
   {
-    thrVal.v.inv = (int )val;
+    switch(cmp)
+    {
+      case WLZ_EXP_CMP_LT:
+        break;
+      case WLZ_EXP_CMP_LE:
+        WlzExpIncParamValue(&val, 1);
+        break;
+      case WLZ_EXP_CMP_EQ:
+        WlzExpIncParamValue(&val, 1);
+        hiLo[1] = WLZ_THRESH_HIGH;
+        break;
+      case WLZ_EXP_CMP_GE:
+        hiLo[0] = WLZ_THRESH_HIGH;
+        break;
+      case WLZ_EXP_CMP_GT:
+        WlzExpIncParamValue(&val, 1);
+        hiLo[0] = WLZ_THRESH_HIGH;
+        break;
+      default:
+        errNum = WLZ_ERR_PARAM_DATA;
+	break;
+    }
+  }
+  if(errNum == WLZ_ERR_NONE)
+  {
+    thrVal = WlzExpParamValueToPixelV(val);
     rObj = WlzThreshold(iObj, thrVal, hiLo[0], &errNum);
   }
   if((errNum == WLZ_ERR_NONE) && (cmp == WLZ_EXP_CMP_EQ))
   {
     WlzObject	*tObj;
 
-    thrVal.v.inv = (int )val - 1;
+    WlzExpIncParamValue(&val, -1);
+    thrVal = WlzExpParamValueToPixelV(val);
     tObj = WlzThreshold(rObj, thrVal, hiLo[1], &errNum);
     (void )WlzFreeObj(rObj);
     rObj = tObj;

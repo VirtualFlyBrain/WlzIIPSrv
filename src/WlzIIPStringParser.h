@@ -1,15 +1,13 @@
-#ifndef WLZ_EXP_TYPE_PARSER_H
-#define WLZ_EXP_TYPE_PARSER_H
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _WlzExpTypeParser_h[] = "University of Edinburgh $Id: 8dc86d81f83650203d21bd14a28af9756e8e7a4f $";
+static char _WlzIIPStringParser_h[] = "University of Edinburgh $Id: f4b9c0f174dd02f7e7edf9c4b255791dddd73ff9 $";
 #endif
 /*!
-* \file         WlzExpTypeParser.h
+* \file         WlzIIPStringParser.h
 * \author       Bill Hill
-* \date         October 2011
-* \version      $Id: 8dc86d81f83650203d21bd14a28af9756e8e7a4f $
+* \date         June 2016
+* \version      $Id: f4b9c0f174dd02f7e7edf9c4b255791dddd73ff9 $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -18,7 +16,7 @@ static char _WlzExpTypeParser_h[] = "University of Edinburgh $Id: 8dc86d81f83650
 *               Western General Hospital,
 *               Edinburgh, EH4 2XU, UK.
 * \par
-* Copyright (C), [2012],
+* Copyright (C), [2016],
 * The University Court of the University of Edinburgh,
 * Old College, Edinburgh, UK.
 * 
@@ -37,8 +35,8 @@ static char _WlzExpTypeParser_h[] = "University of Edinburgh $Id: 8dc86d81f83650
 * License along with this program; if not, write to the Free
 * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 * Boston, MA  02110-1301, USA.
-* \brief	A union and type definition for flex and bison in
-* 		parsing Woolz expressions for the Woolz IIP server.
+* \brief	Prototypes of functions for parsing strings within the
+* 		Woolz IIP server.
 * \ingroup	WlzIIPServer
 */
 
@@ -47,24 +45,13 @@ extern "C"
 {
 #endif
 
-#include "WlzExpression.h"
-
-typedef union _WlzExpTypeParser
-{
-  int 		i;
-  unsigned int 	u;
-  double	d;
-  WlzExpCmpType	cmp;
-  WlzObject	*obj;
-  WlzExp 	*exp;
-  WlzExpIdxList *idx_lst;
-  WlzExpIdxRange *idx_rng;
-}WlzExpTypeParser;
-
-#define YYSTYPE WlzExpTypeParser
+extern int			WlzIIPStrParseIdxAndPos(
+				  int *dstNIdx,
+				  int *idx,
+				  int *dstNPos, WlzDVertex3 *pos,
+				  const char *str);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* WLZ_EXP_TYPE_PARSER_H */

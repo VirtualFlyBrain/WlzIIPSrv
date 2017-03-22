@@ -1,13 +1,13 @@
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _SEL_cc[] = "University of Edinburgh $Id$";
+static char _SEL_cc[] = "University of Edinburgh $Id: 5b969e7fc55600e3891611f7612f1a38f980be25 $";
 #endif
 /*!
 * \file         SEL.cc
 * \author       Zsolt Husz, Bill Hill
 * \date         February 2010
-* \version      $Id$
+* \version      $Id: 5b969e7fc55600e3891611f7612f1a38f980be25 $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -106,6 +106,7 @@ void SEL::run(Session* session, std::string argument)
       break;
   }
   selector->expression = WlzExpAssign(exp);
+  selector->complexSelection = session->complexSelection;
   // Insert at the end of the list
   if (!session->viewParams->selector)
   { //first element

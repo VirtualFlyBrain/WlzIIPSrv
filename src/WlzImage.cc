@@ -1,13 +1,13 @@
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _WlzImage_cc[] = "University of Edinburgh $Id$";
+static char _WlzImage_cc[] = "University of Edinburgh $Id: 5d767f8c7b9a80823f18c081cd85283131c42be0 $";
 #endif
 /*!
 * \file         WlzImage.cc
 * \author       Zsolt Husz, Bill Hill
 * \date         June 2008
-* \version      $Id$
+* \version      $Id: 5d767f8c7b9a80823f18c081cd85283131c42be0 $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -640,7 +640,9 @@ void WlzImage::closeImage() {
 * \ingroup      WlzIIPServer
 * \brief	Renders a Woolz object by either sectioning or projecting
 * 		the given 3D object to generate a single tile in tile_buf
-* 		for the tileing given by tileObj.
+* 		for the tileing given by tileObj. If an alpha channel is
+* 		being used and sectioning is being used then the returned
+* 		section will be masked.
 * \param        tileBuf   allocated memmory location for the tile
 * \param        gvnObj	   The given 3D woolz object to render.
 * \param        tileObj    Given tile object set up for the requested tile.
@@ -664,9 +666,30 @@ WlzErrorNum			WlzImage::renderObj(
   switch(viewParams->rmd)
   {
     case RENDERMODE_SECT:
-      renObj = WlzAssignObject(
-	       WlzGetSubSectionFromObject(gvnObj, tileObj, wlzViewStr, interp,
-					  NULL, &errNum), NULL);
+      {
+	WlzObject **mskP = NULL;
+        WlzObject *mskObj = NULL;
+
+	/* Get section image, masking it if an alpha channel is being used. */
+        if(viewParams->alpha && gvnObj->values.core)
+	{
+	  mskP = &mskObj;
+	}
+	renObj = WlzAssignObject(
+		 WlzGetSubSectionFromObject(gvnObj, tileObj, wlzViewStr,
+		 			    interp, mskP, &errNum), NULL);
+        if((errNum == WLZ_ERR_NONE) && 
+	   (renObj != NULL) && (mskObj != NULL))
+	{
+	  WlzObject *tmpObj;
+
+          tmpObj = WlzAssignObject(
+	           WlzGreyTransfer(mskObj, renObj, 0, &errNum), NULL);
+          (void )WlzFreeObj(renObj);
+	  renObj = tmpObj;
+        }
+	(void )WlzFreeObj(mskObj);
+      }
       break;
     case RENDERMODE_PROJ_N: // FALLTHROUGH
     case RENDERMODE_PROJ_D: // FALLTHROUGH
@@ -678,7 +701,7 @@ WlzErrorNum			WlzImage::renderObj(
       errNum = WLZ_ERR_PARAM_DATA;
       break;
   }
-  if(renObj == NULL || errNum != WLZ_ERR_NONE)
+  if((renObj == NULL) || (errNum != WLZ_ERR_NONE))
   {
     throw(
     makeWlzErrorMessage(
@@ -970,6 +993,7 @@ throw(string)
   if(viewParams->selector)
   {
     //if selector existis
+    int cpxExp = viewParams->selector->complexSelection;
     CompoundSelector *iter = viewParams->selector;
     while(iter)
     {
@@ -979,7 +1003,7 @@ throw(string)
 	{
           WlzObject *obj= NULL;
 
-          obj = WlzImageExpEval(iter->expression); // Assigns obj.
+          obj = WlzImageExpEval(cpxExp, iter->expression); // Assigns obj.
 	  if(obj)
 	  {
 	    renderObj(tile_buf, obj, tmpObj, pos2D, size, iter);
@@ -1037,14 +1061,16 @@ throw(string)
 * \brief        Evaluates a morphological expression with reference to the
 *               given object but first tries to retrieve it from the Woolz
 *               object cache.
+* \param	cpxExp			Control for complex expressions.
 * \param        exp                     Morphological expression to be
 *                                       evaluated using the current object.
 */
-WlzObject      *WlzImage::WlzImageExpEval(WlzExp *exp)
+WlzObject      *WlzImage::WlzImageExpEval(int cpxExp, WlzExp *exp)
 {
   char          *eS;
   string   	cS;
   WlzObject	*cObj = NULL;
+  WlzErrorNum   errNum = WLZ_ERR_NONE;
 
   eS = WlzExpStr(exp, NULL, NULL);
   if(eS)
@@ -1055,11 +1081,16 @@ WlzObject      *WlzImage::WlzImageExpEval(WlzExp *exp)
   }
   if(cObj == NULL)
   {
-    cObj = WlzExpEval(wlzObject, exp, NULL);
+    cObj = WlzExpEval(wlzObject, cpxExp, exp, &errNum);
     if(cObj)
     {
       WlzAssignObject(cObj, NULL);
       addObjectToCache(cObj, cS);
+    }
+    else if(errNum != WLZ_ERR_NONE)
+    {
+      LOG_WARN("WlzImage::WlzImageExpEval() Woolz error = " <<
+               WlzStringFromErrorNum(errNum, NULL));
     }
   }
   return(cObj);
@@ -1096,19 +1127,22 @@ void WlzImage::getDepthRange(double& min, double& max){
 
 /*!
  * \ingroup      WlzIIPServer
- * \brief        Return in degrees the rotation angles of the section
- * \param        theta reference to theta rotation angle
- * \param        phi reference to phi rotation angle
- * \param        zeta reference to zeta rotation angle
- * \return       void
- * \par      Source:
- *                WlzImage.cc
+ * \brief       Return in degrees the rotation angles of the section and
+ * 		distance from the section fixed point.
+ * \param       theta 		Reference to theta rotation angle.
+ * \param       phi 		Reference to phi rotation angle.
+ * \param       zeta 		Reference to zeta rotation angle.
+ * \param	dist		Reference to distance.
  */
-void WlzImage::getAngles(double& theta, double& phi, double& zeta){
+void
+WlzImage::
+getAngles(double &theta, double &phi, double &zeta, double &dist)
+{
   prepareViewStruct(); 
   theta = wlzViewStr->theta / WLZ_M_PI * 180.0;
   phi   = wlzViewStr->phi   / WLZ_M_PI * 180.0;
   zeta  = wlzViewStr->zeta  / WLZ_M_PI * 180.0;
+  dist  = wlzViewStr->dist;
 }
 
 /*!
@@ -1156,6 +1190,56 @@ WlzDVertex3 WlzImage::getCurrentPointInPlane(){
   }
   result.vtZ = curViewParams->dist;
   return result;
+}
+
+/*!
+ * \return	True on success.
+ * \ingroup	WlzIIPServer
+ * \brief	Gets the centroid of the indexed object.
+ */
+bool
+WlzImage::getCentroid(int idx, WlzDVertex3 &pos)
+{
+  WlzCompoundArray *array;
+  bool		stat = false;
+  WlzObject	*obj = NULL;
+  WlzErrorNum 	errNum = WLZ_ERR_NONE;
+
+  prepareObject();
+  array = (wlzObject->type == WLZ_COMPOUND_ARR_2)?
+          (WlzCompoundArray *)wlzObject : NULL;
+  if(idx == 0)
+  {
+    obj = (array)? array->o[0]: wlzObject;
+  }
+  else
+  {
+    if(array && (idx < array->n))
+    {
+      obj = array->o[idx];
+    }
+    else
+    {
+      errNum = WLZ_ERR_OBJECT_TYPE;
+    }
+  }
+  if(obj)
+  {
+    WlzDVertex3 com;
+
+    com = WlzCentreOfMass3D(obj, 1, NULL, &errNum);
+    if(errNum == WLZ_ERR_NONE)
+    {
+      pos = com;
+      stat = true;
+    }
+  }
+  if(!stat)
+  {
+    LOG_INFO("WlzImage::getCentroid() failed idx = " << idx <<
+	     " error = " << WlzStringFromErrorNum(errNum, NULL));
+  }
+  return(stat);
 }
 
 /*!
@@ -1248,7 +1332,8 @@ throw(std::string)
 
 /*!
 * \ingroup	WlzIIPServer
-* \brief	Gets simple grey value statistics for the current object.
+* \brief	Gets simple grey value statistics for the current object
+* 		or if used the first selection.
 * \param	n		Destination for the object's volume.
 * \param	t		Destination for the object's type.
 * \param	gl		Destination for minimum grey value.
@@ -1264,9 +1349,23 @@ WlzImage::getGreyStats(int &n, WlzGreyType &t, double &gl, double &gu,
                        double &sum, double &ss, double &mean, double &sdev)
 throw(std::string)
 {
+  WlzObject	*obj = NULL;
   WlzErrorNum	errNum = WLZ_ERR_NONE;
+
   prepareObject();
-  WlzObject *obj = getObj();
+  if(viewParams->selector)
+  {
+    CompoundSelector *sel = viewParams->selector;
+    if(sel && sel->expression)
+    {
+      obj = WlzImageExpEval(sel->complexSelection,
+                            sel->expression); // Assigns obj.
+    }
+  }
+  if(obj == NULL)
+  {
+    obj = WlzAssignObject(getObj(), NULL);
+  }
   n = WlzGreyStats(obj, &t, &gl, &gu, &sum, &ss, &mean, &sdev, &errNum);
   if(errNum != WLZ_ERR_NONE)
   {
@@ -1304,17 +1403,32 @@ throw(std::string)
 
 /*!
  * \ingroup      WlzIIPServer
- * \brief        Return object volume
+ * \brief        Return volume of the object or if used the first selection.
  * \return       the object volume
  */
 WlzLong 	WlzImage::getVolume()
 throw(std::string)
 {
   WlzLong	vol = 0;
+  WlzObject	*obj = NULL;
   WlzErrorNum	errNum = WLZ_ERR_NONE;
 
   prepareObject();
-  vol = WlzVolume(getObj(), &errNum);
+  if(viewParams->selector)
+  {
+    CompoundSelector *sel = viewParams->selector;
+    if(sel && sel->expression)
+    {
+      obj = WlzImageExpEval(sel->complexSelection,
+                            sel->expression); // Assigns obj.
+    }
+  }
+  if(obj == NULL)
+  {
+    obj = WlzAssignObject(getObj(), NULL);
+  }
+  vol = WlzVolume(obj, &errNum);
+  (void )WlzFreeObj(obj);
   if(errNum != WLZ_ERR_NONE)
   {
     throw(makeWlzErrorMessage("WlzImage::getVolume()", errNum));

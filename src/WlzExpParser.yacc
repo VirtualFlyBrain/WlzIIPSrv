@@ -3,13 +3,13 @@
 #if defined(__GNUC__)
 #ident "MRC HGU $Id$"
 #else
-static char _WlzExpParser_yacc[] = "MRC HGU $Id$";
+static char _WlzExpParser_yacc[] = "MRC HGU $Id: adad476127d080229feff88fac3a74081c10d890 $";
 #endif
 /*!
 * \file         WlzExpParser.yacc
 * \author       Bill Hill
 * \date         October 2011
-* \version      $Id$
+* \version      $Id: adad476127d080229feff88fac3a74081c10d890 $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -44,6 +44,8 @@ static char _WlzExpParser_yacc[] = "MRC HGU $Id$";
 #include "WlzExpTypeParser.h"
 #include "WlzExpParserParam.h"
 
+extern int yyerror(const char *msg);
+
 %}
  
 %define api.pure
@@ -67,6 +69,8 @@ static char _WlzExpParser_yacc[] = "MRC HGU $Id$";
 %token		TOKEN_UNION
  
 %token <u> 	TOKEN_UINT
+%token <i> 	TOKEN_INT
+%token <d> 	TOKEN_FLOAT
 %token <cmp> 	TOKEN_CMP
  
 %left 		TOKEN_SEP
@@ -82,6 +86,11 @@ input:
         	exp
 		{ ((WlzExpParserParam*)data)->exp    = $1;
 		  ((WlzExpParserParam*)data)->nPar   = 0;
+		} |
+		exp TOKEN_SEP TOKEN_UINT
+		{ ((WlzExpParserParam*)data)->exp = $1;
+		  ((WlzExpParserParam*)data)->nPar = 1;
+		  ((WlzExpParserParam*)data)->par[0] = $3;
 		} |
 		exp TOKEN_SEP TOKEN_UINT TOKEN_SEP TOKEN_UINT
 		{ ((WlzExpParserParam*)data)->exp = $1;
@@ -176,12 +185,34 @@ exp:
 		TOKEN_SETVALUE TOKEN_OP exp TOKEN_SEP
 		TOKEN_UINT TOKEN_CP
 		{
-		  $$ = WlzExpMakeSetvalue($3, $5);
+		  $$ = WlzExpMakeSetValue($3, $5);
+		} |
+		TOKEN_THRESHOLD TOKEN_OP exp TOKEN_SEP
+		TOKEN_INT TOKEN_SEP TOKEN_CMP TOKEN_CP
+		{
+		  WlzExpOpParam v;
+
+		  v.type = WLZ_EXP_PRM_INT;
+		  v.val.i = $5;
+		  $$ = WlzExpMakeThreshold($3, v, $7);
 		} |
 		TOKEN_THRESHOLD TOKEN_OP exp TOKEN_SEP
 		TOKEN_UINT TOKEN_SEP TOKEN_CMP TOKEN_CP
 		{
-		  $$ = WlzExpMakeThreshold($3, $5, $7);
+		  WlzExpOpParam v;
+
+		  v.type = WLZ_EXP_PRM_UINT;
+		  v.val.u = $5;
+		  $$ = WlzExpMakeThreshold($3, v, $7);
+		} |
+		TOKEN_THRESHOLD TOKEN_OP exp TOKEN_SEP
+		TOKEN_FLOAT TOKEN_SEP TOKEN_CMP TOKEN_CP
+		{
+		  WlzExpOpParam v;
+
+		  v.type = WLZ_EXP_PRM_FLOAT;
+		  v.val.d = $5;
+		  $$ = WlzExpMakeThreshold($3, v, $7);
 		} |
 		TOKEN_TRANSFER TOKEN_OP exp TOKEN_SEP exp TOKEN_CP
 		{

@@ -1,13 +1,13 @@
 #if defined(__GNUC__)
 #ident "University of Edinburgh $Id$"
 #else
-static char _OBJ_cc[] = "University of Edinburgh $Id$";
+static char _OBJ_cc[] = "University of Edinburgh $Id: 1c2bb206e5bd1f11618864c6b2a93a256b202c8f $";
 #endif
 /*!
 * \file         OBJ.cc
 * \author       Ruven Pillay, Zsolt Husz, Bill Hill
 * \date         June 2008
-* \version      $Id$
+* \version      $Id: 1c2bb206e5bd1f11618864c6b2a93a256b202c8f $
 * \par
 * Address:
 *               MRC Human Genetics Unit,
@@ -89,6 +89,7 @@ void OBJ::run(Session* s, std::string a)
       "SHD "
       "WLZ "
       "DST "
+      "FPL "
       "FXP "
       "MAP "
       "MOD "
@@ -292,11 +293,15 @@ void OBJ::wlz_sectioning_angles()
 {
   checkImage();
   checkIfWoolz();
-  double theta = 0.0, phi = 0.0, zeta = 0.0;
-  ((WlzImage*)(*session->image))->getAngles(theta, phi, zeta);
-  LOG_INFO("OBJ :: Wlz-sectioning-angles handler returning " << phi <<
-            " - " << theta << " - " << zeta);
-  session->response->addResponse("Wlz-sectioning-angles", phi, theta, zeta);
+  double theta = 0.0, phi = 0.0, zeta = 0.0, dist = 0.0;
+  ((WlzImage*)(*session->image))->getAngles(theta, phi, zeta, dist);
+  LOG_INFO("OBJ :: Wlz-sectioning-angles handler returning " <<
+           phi   << " - " <<
+	   theta << " - " <<
+	   zeta  << " - " <<
+	   dist  << " (angles in radians");
+  session->response->addResponse("Wlz-sectioning-angles",
+  				 phi, theta, zeta, dist);
 }
 
 void
@@ -366,6 +371,10 @@ void OBJ::wlz_true_voxel_size()
   float *voxel_size = ((WlzImage*)(*session->image))->getTrueVoxelSize();
   LOG_INFO("OBJ :: Wlz-voxel-size handler returning " <<
             voxel_size[0] << "," << voxel_size[1] << "," << voxel_size[2]);
+  session->response->addResponse("Wlz-true-voxel-size",
+                                 voxel_size[0],
+				 voxel_size[1],
+				 voxel_size[2]);
 }
 
 void OBJ::wlz_n_components()
