@@ -10,7 +10,7 @@ COPY docker/.htpasswd /config/.htpasswd
 
 RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
-&& cd woolz \
+&& cd Woolz \
 && ./build.sh 
 
 RUN cd /tmp/ \
