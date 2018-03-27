@@ -1,6 +1,6 @@
 FROM jgeusebroek/webdav
 
-RUN apk add --update git automake autoconf
+RUN apk add --update git automake autoconf m4
 
 COPY docker/lighttpd.conf /config/lighttpd.conf
 
