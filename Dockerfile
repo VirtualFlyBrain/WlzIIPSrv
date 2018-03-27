@@ -6,7 +6,8 @@ COPY docker/lighttpd.conf /config/lighttpd.conf
 
 COPY docker/.htpasswd /config/.htpasswd
 
-RUN cd /tmp/ \
+RUN sh bin/setup.sh \
+&& cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
 && cd Woolz \
 && mkdir -p m4 \
