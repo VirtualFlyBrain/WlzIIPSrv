@@ -1,8 +1,8 @@
 FROM jgeusebroek/webdav
 
-RUN apk add --update git 
+RUN apk add --update git autotools-dev
 
-RUN apk add --update autoconf
+RUN apk add --update autoconf aclocal
 
 COPY docker/lighttpd.conf /config/lighttpd.conf
 
