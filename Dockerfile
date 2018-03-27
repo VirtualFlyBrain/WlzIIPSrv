@@ -9,9 +9,11 @@ COPY docker/.htpasswd /config/.htpasswd
 RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
 && cd Woolz \
+&& mkdir -p m4 \
 && ./build.sh 
 
 RUN cd /tmp/ \
 && git clone https://github.com/VirtualFlyBrain/WlzIIPSrv.git \
 && cd WlzIIPSrv \
+&& mkdir -p m4 \
 && ./build.sh 
