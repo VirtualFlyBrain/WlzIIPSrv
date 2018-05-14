@@ -6,6 +6,8 @@ COPY docker/lighttpd.conf /config/lighttpd.conf
 
 COPY docker/.htpasswd /config/.htpasswd
 
+COPY docker/nifti1_io.h /usr/include/nifti1_io.h
+
 RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
 && cd Woolz \
