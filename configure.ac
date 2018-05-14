@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([wlziipsrv], [1.1.9])
+AC_INIT([wlziipsrv], [1.1.10])
 
 AC_CANONICAL_TARGET
 
@@ -293,8 +293,8 @@ dnl	Set debug
 AC_ARG_ENABLE(debug,
   [  --enable-debug       build with debugging flags set])
 AS_IF([test "x$enable_debug" = "xyes"], [
-    CFLAGS="${CFLAGS} -g -fPIC -DDEBUG"
-    LDFLAGS="${LDFLAGS} -g -DDEBUG"
+    CFLAGS="${CFLAGS} -g -fPIC"
+    LDFLAGS="${LDFLAGS} -g"
 ])
 
 
