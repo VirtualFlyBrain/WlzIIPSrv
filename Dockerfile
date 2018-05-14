@@ -1,6 +1,6 @@
 FROM jgeusebroek/webdav
 
-RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg-turbo-dev zlib-dev cmake
+RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg-turbo-dev zlib-dev cmake tiff-dev
 
 COPY docker/lighttpd.conf /config/lighttpd.conf
 
@@ -28,4 +28,5 @@ RUN cd /tmp/ \
 && mkdir -p m4 \
 && autoreconf -i --force \
 && ./build.sh \
+&& ./configure \
 && make
