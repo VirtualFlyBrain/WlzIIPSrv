@@ -19,7 +19,7 @@ RUN cd /tmp/ \
 && automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --with-nifti=/tmp/NIFTI/ \
+&& ./configure --enable-extff --with-nifti=/tmp/NIFTI/ \
 && make install
 
 RUN cd /tmp/ \
@@ -28,5 +28,5 @@ RUN cd /tmp/ \
 && mkdir -p m4 \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --with-wlz-incl=/opt/MouseAtlas/include/ --with-wlz-lib=/tmp/Woolz/ \
+&& ./configure --with-wlz-incl=/opt/MouseAtlas/include/ --with-wlz-lib=/opt/MouseAtlas/lib/ \
 && make
