@@ -9,7 +9,7 @@ COPY docker/.htpasswd /config/.htpasswd
 RUN cd /tmp/ \
 && git clone https://github.com/MIRTK/NIFTI.git \
 && cd NIFTI \
-&& sed -i 's/csh/ash/' Makefile
+&& sed -i 's/csh/ash/' Makefile \
 && make all
 
 RUN cd /tmp/ \
