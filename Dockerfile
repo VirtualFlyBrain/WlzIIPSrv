@@ -1,6 +1,6 @@
 FROM jgeusebroek/webdav
 
-RUN apk add --update git build-base automake autoconf m4 libtool bison
+RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg
 
 COPY docker/lighttpd.conf /config/lighttpd.conf
 
