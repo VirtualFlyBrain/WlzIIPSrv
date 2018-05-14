@@ -11,11 +11,13 @@ RUN cd /tmp/ \
 && cd Woolz \
 && mkdir -p m4 \
 && autoreconf -i --force \
-&& ./build.sh 
+&& ./build.sh \
+&& make install
 
 RUN cd /tmp/ \
 && git clone https://github.com/VirtualFlyBrain/WlzIIPSrv.git \
 && cd WlzIIPSrv \
 && mkdir -p m4 \
 && autoreconf -i --force \
-&& ./build.sh 
+&& ./build.sh \
+&& make
