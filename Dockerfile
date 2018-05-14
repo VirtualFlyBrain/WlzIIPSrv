@@ -16,8 +16,10 @@ RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
 && cd Woolz \
 && mkdir -p m4 \
+&& automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
+&& ./configure --with-nifti=/tmp/NIFTI/ \
 && make install
 
 RUN cd /tmp/ \
