@@ -26,6 +26,7 @@ RUN cd /tmp/ \
 && git clone https://github.com/VirtualFlyBrain/WlzIIPSrv.git \
 && cd WlzIIPSrv \
 && mkdir -p m4 \
+&& export PATH=$PATH:/opt/MouseAtlas/include \
 && autoreconf -i --force \
 && ./build.sh \
 && ./configure \
