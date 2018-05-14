@@ -1,6 +1,6 @@
 FROM jgeusebroek/webdav
 
-RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg-turbo-dev
+RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg-turbo-dev zlib-dev cmake
 
 COPY docker/lighttpd.conf /config/lighttpd.conf
 
@@ -9,6 +9,7 @@ COPY docker/.htpasswd /config/.htpasswd
 RUN cd /tmp/ \
 && git clone https://github.com/MIRTK/NIFTI.git \
 && cd NIFTI \
+&& sed -i 's/csh/ash/' Makefile
 && make all
 
 RUN cd /tmp/ \
