@@ -48,6 +48,7 @@ static char _WlzImage_h[] = "University of Edinburgh $Id: e224d7ffcc33ffb1a53099
 
 #include "WlzViewStructCache.h"
 #include "WlzObjectCache.h"
+#include <stringstream>
 
 
 /*! 
