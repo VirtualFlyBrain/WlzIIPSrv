@@ -33,5 +33,5 @@ RUN cd /tmp/ \
 && automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --with-wlz-incl=/opt/MouseAtlas/include/ --with-wlz-lib=/opt/MouseAtlas/lib/ --with-fcgi-lib=/usr/lib/ \
+&& ./configure --with-wlz-incl=/opt/MouseAtlas/include/ --with-wlz-lib=/opt/MouseAtlas/lib/ --with-fcgi-lib=/usr/lib/ --with-nifti-incl=/tmp/NIFTI/include/ --with-nifti-lib=/tmp/NIFTI/lib/ \
 && make
