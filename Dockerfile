@@ -28,7 +28,10 @@ RUN cd /tmp/ \
 && git clone https://github.com/VirtualFlyBrain/WlzIIPSrv.git \
 && cd WlzIIPSrv \
 && mkdir -p m4 \
+&& libtoolize \
+&& aclocal \
+&& automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --with-wlz-incl=/opt/MouseAtlas/include/ --with-wlz-lib=/opt/MouseAtlas/lib/ \
+&& ./configure --with-wlz-incl=/opt/MouseAtlas/include/ --with-wlz-lib=/opt/MouseAtlas/lib/ --with-fcgi-lib=/usr/lib/ \
 && make
