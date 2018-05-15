@@ -16,6 +16,7 @@ RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
 && cd Woolz \
 && mkdir -p m4 \
+&& libtoolize \
 && aclocal \
 && automake --add-missing \
 && autoreconf -i --force \
