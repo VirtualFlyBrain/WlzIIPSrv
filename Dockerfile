@@ -10,7 +10,9 @@ RUN cd /tmp/ \
 && git clone https://github.com/MIRTK/NIFTI.git \
 && cd NIFTI \
 && sed -i 's/csh/ash/' Makefile \
-&& make all
+&& make all \
+&& cp include/* /usr/include/ \
+&& cp lib/* /usr/lib/
 
 RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
