@@ -1,4 +1,4 @@
-FROM jgeusebroek/webdav
+FROM httpd:alpine
 
 RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg-turbo-dev zlib-dev cmake tiff-dev libpng-dev fcgi-dev flex-dev
 
