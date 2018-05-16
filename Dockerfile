@@ -1,10 +1,6 @@
 FROM httpd:alpine
 
-RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg-turbo-dev zlib-dev cmake tiff-dev libpng-dev fcgi-dev flex-dev
-
-COPY docker/lighttpd.conf /config/lighttpd.conf
-
-COPY docker/.htpasswd /config/.htpasswd
+RUN apk add --update git build-base automake autoconf m4 libtool bison libjpeg-turbo-dev zlib-dev cmake tiff-dev libpng-dev fcgi-dev flex-dev apache-mod-fcgid
 
 VOLUME /disk/data/VFB/IMAGE_DATA/
 
