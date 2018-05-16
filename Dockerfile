@@ -48,7 +48,7 @@ RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory /disk/data/apache/fcgi/>
 
 RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Cache-Control \"public\"\n    Header unset Pragma\n\n" >> /usr/local/apache2/conf/httpd.conf 
 
-RUN echo -e "## IIP Server settings:\n  DefaultInitEnv LOGFILE \"/tmp/wlziip.log\"\n  DefaultInitEnv VERBOSITY \"1\"\n  DefaultInitEnv JPEG_QUALITY \"75\"\n  DefaultInitEnv MAX_IMAGE_CACHE_SIZE \"10\"\n  DefaultInitEnv MAX_CVT \"5000\"\n  DefaultInitEnv WLZ_TILE_WIDTH \"1025\"\n  DefaultInitEnv WLZ_TILE_HEIGHT \"1025\"\n  DefaultInitEnv MAX_WLZOBJ_CACHE_SIZE \"1024\"\n  DefaultInitEnv MAX_WLZOBJ_CACHE_COUNT \"100\"\n" >> /usr/local/apache2/conf/httpd.conf 
+# RUN echo -e "## IIP Server settings:\n  DefaultInitEnv LOGFILE \"/tmp/wlziip.log\"\n  DefaultInitEnv VERBOSITY \"1\"\n  DefaultInitEnv JPEG_QUALITY \"75\"\n  DefaultInitEnv MAX_IMAGE_CACHE_SIZE \"10\"\n  DefaultInitEnv MAX_CVT \"5000\"\n  DefaultInitEnv WLZ_TILE_WIDTH \"1025\"\n  DefaultInitEnv WLZ_TILE_HEIGHT \"1025\"\n  DefaultInitEnv MAX_WLZOBJ_CACHE_SIZE \"1024\"\n  DefaultInitEnv MAX_WLZOBJ_CACHE_COUNT \"100\"\n" >> /usr/local/apache2/conf/httpd.conf 
 
 RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
 
