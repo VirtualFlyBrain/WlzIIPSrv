@@ -48,7 +48,7 @@ RUN sed -i 's|#AddHandler cgi-script .cgi|AddHandler cgi-script .cgi\nAddHandler
 
 RUN mkdir -p /usr/local/apache2/fcgi/ && cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/fcgi/ && chmod -R 777 /usr/local/apache2/fcgi
 
-RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory /disk/data/apache/fcgi/>\n    SetHandler fcgid-script\n    AllowOverride AuthConfig FileInfo Indexes\n    Options FollowSymLinks ExecCGI MultiViews\n</Directory>\n# "/usr/local/apache2/cgi-bin"|g'
+RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory /disk/data/apache/fcgi/>\n    SetHandler fcgid-script\n    AllowOverride AuthConfig FileInfo Indexes\n    Options FollowSymLinks ExecCGI MultiViews\n</Directory>\n# "/usr/local/apache2/cgi-bin"|g' /usr/local/apache2/conf/httpd.conf 
 
 RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Cache-Control \"public\"\n    Header unset Pragma\n\n" >> /usr/local/apache2/conf/httpd.conf 
 
