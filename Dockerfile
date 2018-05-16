@@ -6,6 +6,8 @@ COPY docker/lighttpd.conf /config/lighttpd.conf
 
 COPY docker/.htpasswd /config/.htpasswd
 
+VOLUME /disk/data/VFB/IMAGE_DATA/
+
 RUN cd /tmp/ \
 && git clone https://github.com/MIRTK/NIFTI.git \
 && cd NIFTI \
@@ -39,3 +41,9 @@ RUN cd /tmp/ \
 --with-wlz-lib=/opt/MouseAtlas/lib/ --with-fcgi-lib=/usr/lib/ --with-fcgi-incl=/usr/include/ \
 --with-nifti-incl=/tmp/NIFTI/include/ --with-nifti-lib=/tmp/NIFTI/lib/ \
 && make
+
+RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/|g' /usr/local/apache2/conf/httpd.conf
+
+RUN cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/cgi-bin/
+
+RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
