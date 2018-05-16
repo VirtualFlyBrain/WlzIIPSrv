@@ -42,8 +42,10 @@ RUN cd /tmp/ \
 --with-nifti-incl=/tmp/NIFTI/include/ --with-nifti-lib=/tmp/NIFTI/lib/ \
 && make
 
-RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/|g' /usr/local/apache2/conf/httpd.conf
+RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/ "/usr/local/apache2/fcgi/"\nScriptAlias /cgi-bin/|g' /usr/local/apache2/conf/httpd.conf
 
-RUN cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/cgi-bin/
+RUN sed -i 's|#AddHandler cgi-script .cgi|AddHandler cgi-script .cgi\nAddHandler fcgid-script fcg fcgi|g' /usr/local/apache2/conf/httpd.conf
+
+RUN mkdir -p /usr/local/apache2/fcgi/ && cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/fcgi/ && chmod -R 777 /usr/local/apache2/fcgi
 
 RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
