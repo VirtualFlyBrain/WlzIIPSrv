@@ -1,6 +1,6 @@
 FROM httpd:alpine
 
-RUN apk add --update git build-base automake autoconf m4 libtool bison cmake flex-dev
+RUN apk add --update git build-base automake autoconf m4 libtool bison cmake flex-dev zlib-dev
 
 VOLUME /disk/data/VFB/IMAGE_DATA/
 ENV MA=/opt/MouseAtlas/
