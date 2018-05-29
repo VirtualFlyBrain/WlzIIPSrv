@@ -6,6 +6,7 @@ VOLUME /disk/data/VFB/IMAGE_DATA/
 ENV MA=/opt/MouseAtlas/
 ENV PATH=/opt/MouseAtlas/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/MouseAtlas/lib:$LD_LIBRARY_PATH
+ENV LD_RUN_PATH=/opt/MouseAtlas/lib:$LD_RUN_PATH
 
 RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/External.git
@@ -73,7 +74,7 @@ RUN cd /tmp/ \
 && automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --enable-extff --with-nifti=/usr/local/ \
+&& ./configure --enable-extff \
 && make install
 
 RUN cd /tmp/ \
