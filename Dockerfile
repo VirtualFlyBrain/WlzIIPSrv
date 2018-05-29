@@ -62,7 +62,7 @@ RUN cd /tmp/External/ \
 && tar -zxf nifticlib-2.0.0.tar.gz \
 && cmake nifticlib-2.0.0 \
 && make \
-&& make install \
+&& make install
 
 RUN cd /tmp/ \
 && git clone https://github.com/ma-tech/Woolz.git \
