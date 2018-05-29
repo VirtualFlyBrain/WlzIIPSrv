@@ -74,7 +74,8 @@ RUN cd /tmp/ \
 && automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --prefix /opt/MouseAtlas --enable-optimise --with-jpeg /opt/MouseAtlas --with-tiff /opt/MouseAtlas --with-nifti /opt/MouseAtlas --enable-extff \
+&& ./configure --prefix /opt/MouseAtlas --enable-optimise --enable-extff \
+&& make \
 && make install
 
 RUN cd /tmp/ \
