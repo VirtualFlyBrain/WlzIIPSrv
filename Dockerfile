@@ -3,7 +3,7 @@ FROM httpd:alpine
 RUN apk add --update git build-base automake autoconf m4 libtool bison cmake flex-dev zlib-dev nasm
 
 VOLUME /disk/data/VFB/IMAGE_DATA/
-ENV MA=/opt/MouseAtlas/
+ENV MA=/opt/MouseAtlas
 ENV PATH=/opt/MouseAtlas/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/MouseAtlas/lib:$LD_LIBRARY_PATH
 ENV LD_RUN_PATH=/opt/MouseAtlas/lib:$LD_RUN_PATH
@@ -74,7 +74,7 @@ RUN cd /tmp/ \
 && automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --prefix /opt/MouseAtlas --enable-optimise --enable-extff \
+&& ./configure --prefix=$MA --enable-optimise --enable-extff \
 && make \
 && make install
 
