@@ -74,7 +74,7 @@ RUN cd /tmp/ \
 && automake --add-missing \
 && autoreconf -i --force \
 && ./build.sh \
-&& ./configure --prefix=$MA --enable-optimise --enable-extff \
+&& ./configure --prefix=$MA --enable-optimise --enable-extff --with-jpeg=$MA \
 && make \
 && make install
 
