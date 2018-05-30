@@ -81,7 +81,8 @@ RUN cd /tmp/ \
 RUN cd /tmp/ \
 && git clone https://github.com/VirtualFlyBrain/WlzIIPSrv.git \
 && cd WlzIIPSrv \
-&& git checkout release-1.1.10-fix01 \ 
+&& git fetch --all --tags --prune \ 
+&& git checkout tags/version-1.1.9 -b version-1.1.9 \
 && mkdir -p m4 \
 && libtoolize \
 && aclocal \
