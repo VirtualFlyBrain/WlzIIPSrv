@@ -79,7 +79,7 @@ RUN cd /tmp/ \
 && make install
 
 RUN cd /tmp/ \
-&& git clone https://github.com/VirtualFlyBrain/WlzIIPSrv.git \
+&& git clone https://github.com/ma-tech/WlzIIPSrv.git \
 && cd WlzIIPSrv \
 && git fetch --all --tags --prune \ 
 && git checkout tags/version-1.1.9 -b version-1.1.9 \
