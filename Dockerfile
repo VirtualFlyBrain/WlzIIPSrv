@@ -1,5 +1,7 @@
 FROM httpd:alpine
 
+ENV WLZIIPREL=release-1.1.10
+
 RUN apk add --update git build-base automake autoconf m4 libtool bison cmake flex zlib-dev nasm
 
 VOLUME /disk/data/VFB/IMAGE_DATA/
@@ -79,10 +81,8 @@ RUN cd /tmp/ \
 && make install
 
 RUN cd /tmp/ \
-&& git clone https://github.com/ma-tech/WlzIIPSrv.git \
+&& git clone https://github.com/ma-tech/WlzIIPSrv.git -b $WLZIIPREL \
 && cd WlzIIPSrv \
-&& git fetch --all --tags --prune \ 
-&& git checkout tags/version-1.1.9 -b version-1.1.9 \
 && mkdir -p m4 \
 && libtoolize \
 && aclocal \
