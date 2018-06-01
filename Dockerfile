@@ -92,7 +92,8 @@ RUN cd /tmp/ \
 && ./configure --prefix=$MA --enable-optimise --with-wlz-incl=/opt/MouseAtlas/include/ \
 --with-wlz-lib=/opt/MouseAtlas/lib/ --with-fcgi-lib=/opt/MouseAtlas/lib/ --with-fcgi-incl=/opt/MouseAtlas/include/ \
 --with-nifti-incl=/usr/local/include/ --with-nifti-lib=/usr/local/lib/ --with-jpeg-includes=/opt/MouseAtlas/include/ --with-jpeg-libraries=/opt/MouseAtlas/lib/ --with-tiff-includes=/opt/MouseAtlas/include/ --with-tiff-libraries=/opt/MouseAtlas/lib/ --with-png-includes=/opt/MouseAtlas/include/ --with-png-libraries=/opt/MouseAtlas/lib/ \
-&& echo skipping make
+&& sed -i 's|"WlzObjectCache.h"|"WlzObjectCache.h"\n#include <sstream>|g' /tmp/WlzIIPSrv/src/WlzImage.h \
+&& make
 
 #RUN cp /usr/lib/apache2/mod_fcgid.so /usr/local/apache2/modules/mod_fcgid.so
 
