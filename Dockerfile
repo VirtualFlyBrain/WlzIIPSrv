@@ -100,13 +100,11 @@ RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/ "/usr/local/apache2/fcgi/
 
 RUN sed -i 's|#AddHandler cgi-script .cgi|LoadModule fcgid_module /modules/mod_fcgid.so\nAddHandler cgi-script .cgi\nFcgidBusyTimeout 3600\nAddHandler fcgid-script .fcgi|g' /usr/local/apache2/conf/httpd.conf
 
-RUN mkdir -p /usr/local/apache2/fcgi/ && cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/fcgi/ && chmod -R 777 /usr/local/apache2/fcgi
+#RUN mkdir -p /usr/local/apache2/fcgi/ && cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/fcgi/ && chmod -R 777 /usr/local/apache2/fcgi
 
 RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory /disk/data/apache/fcgi/>\n    SetHandler fcgid-script\n    AllowOverride AuthConfig FileInfo Indexes\n    Options FollowSymLinks ExecCGI MultiViews\n    Order allow,deny\n    Require all granted\n</Directory>\n# "/usr/local/apache2/cgi-bin"|g' /usr/local/apache2/conf/httpd.conf 
 
 RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Cache-Control \"public\"\n    Header unset Pragma\n\n" >> /usr/local/apache2/conf/httpd.conf 
-
-# RUN echo -e "## IIP Server settings:\n  DefaultInitEnv LOGFILE \"/tmp/wlziip.log\"\n  DefaultInitEnv VERBOSITY \"1\"\n  DefaultInitEnv JPEG_QUALITY \"75\"\n  DefaultInitEnv MAX_IMAGE_CACHE_SIZE \"10\"\n  DefaultInitEnv MAX_CVT \"5000\"\n  DefaultInitEnv WLZ_TILE_WIDTH \"1025\"\n  DefaultInitEnv WLZ_TILE_HEIGHT \"1025\"\n  DefaultInitEnv MAX_WLZOBJ_CACHE_SIZE \"1024\"\n  DefaultInitEnv MAX_WLZOBJ_CACHE_COUNT \"100\"\n" >> /usr/local/apache2/conf/httpd.conf 
 
 RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
 
