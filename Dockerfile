@@ -94,7 +94,7 @@ RUN cd /tmp/ \
 --with-nifti-incl=/usr/local/include/ --with-nifti-lib=/usr/local/lib/ --with-jpeg-includes=/opt/MouseAtlas/include/ --with-jpeg-libraries=/opt/MouseAtlas/lib/ --with-tiff-includes=/opt/MouseAtlas/include/ --with-tiff-libraries=/opt/MouseAtlas/lib/ --with-png-includes=/opt/MouseAtlas/include/ --with-png-libraries=/opt/MouseAtlas/lib/ \
 && echo skipping make
 
-RUN cp /usr/lib/apache2/mod_fcgid.so /usr/local/apache2/modules/mod_fcgid.so
+RUN echo skipping cp /usr/lib/apache2/mod_fcgid.so /usr/local/apache2/modules/mod_fcgid.so
 
 RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/ "/usr/local/apache2/fcgi/"\nScriptAlias /cgi-bin/|g' /usr/local/apache2/conf/httpd.conf
 
