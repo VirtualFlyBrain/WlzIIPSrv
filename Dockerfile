@@ -2,7 +2,7 @@ FROM httpd:alpine
 
 ENV WLZIIPREL=release-1.1.10
 
-RUN apk add --update git build-base automake autoconf m4 libtool bison cmake flex flex-dev flex-libs zlib-dev nasm
+RUN apk add --update git build-base automake autoconf m4 libtool bison cmake flex flex-dev flex-libs zlib-dev nasm apache-mod-fcgid
 
 VOLUME /disk/data/VFB/IMAGE_DATA/
 ENV MA=/opt/MouseAtlas
@@ -95,17 +95,17 @@ RUN cd /tmp/ \
 && sed -i 's|"WlzObjectCache.h"|"WlzObjectCache.h"\n#include <sstream>|g' /tmp/WlzIIPSrv/src/WlzImage.h \
 && make
 
-#RUN cp /usr/lib/apache2/mod_fcgid.so /usr/local/apache2/modules/mod_fcgid.so
+RUN cp /usr/lib/apache2/mod_fcgid.so /usr/local/apache2/modules/mod_fcgid.so
 
-#RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/ "/usr/local/apache2/fcgi/"\nScriptAlias /cgi-bin/|g' /usr/local/apache2/conf/httpd.conf
+RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/ "/usr/local/apache2/fcgi/"\nScriptAlias /cgi-bin/|g' /usr/local/apache2/conf/httpd.conf
 
-#RUN sed -i 's|#AddHandler cgi-script .cgi|LoadModule fcgid_module /modules/mod_fcgid.so\nAddHandler cgi-script .cgi\nFcgidBusyTimeout 3600\nAddHandler fcgid-script .fcgi|g' /usr/local/apache2/conf/httpd.conf
+RUN sed -i 's|#AddHandler cgi-script .cgi|LoadModule fcgid_module /modules/mod_fcgid.so\nAddHandler cgi-script .cgi\nFcgidBusyTimeout 3600\nAddHandler fcgid-script .fcgi|g' /usr/local/apache2/conf/httpd.conf
 
-#RUN mkdir -p /usr/local/apache2/fcgi/ && cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/fcgi/ && chmod -R 777 /usr/local/apache2/fcgi
+RUN mkdir -p /usr/local/apache2/fcgi/ && cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/fcgi/ && chmod -R 777 /usr/local/apache2/fcgi
 
-#RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory /disk/data/apache/fcgi/>\n    SetHandler fcgid-script\n    AllowOverride AuthConfig FileInfo Indexes\n    Options FollowSymLinks ExecCGI MultiViews\n    Order allow,deny\n    Require all granted\n</Directory>\n# "/usr/local/apache2/cgi-bin"|g' /usr/local/apache2/conf/httpd.conf 
+RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory /disk/data/apache/fcgi/>\n    SetHandler fcgid-script\n    AllowOverride AuthConfig FileInfo Indexes\n    Options FollowSymLinks ExecCGI MultiViews\n    Order allow,deny\n    Require all granted\n</Directory>\n# "/usr/local/apache2/cgi-bin"|g' /usr/local/apache2/conf/httpd.conf 
 
-#RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Cache-Control \"public\"\n    Header unset Pragma\n\n" >> /usr/local/apache2/conf/httpd.conf 
+RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Cache-Control \"public\"\n    Header unset Pragma\n\n" >> /usr/local/apache2/conf/httpd.conf 
 
 RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
 
