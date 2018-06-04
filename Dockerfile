@@ -99,7 +99,7 @@ RUN cp /usr/lib/apache2/mod_fcgid.so /usr/local/apache2/modules/mod_fcgid.so
 
 RUN sed -i 's|ScriptAlias /cgi-bin/|ScriptAlias /fcgi/ "/usr/local/apache2/fcgi/"\nScriptAlias /cgi-bin/|g' /usr/local/apache2/conf/httpd.conf
 
-RUN sed -i 's|#AddHandler cgi-script .cgi|LoadModule fcgid_module /modules/mod_fcgid.so\nAddHandler cgi-script .cgi\nFcgidBusyTimeout 3600\nAddHandler fcgid-script .fcgi|g' /usr/local/apache2/conf/httpd.conf
+RUN sed -i 's|#AddHandler cgi-script .cgi|LoadModule fcgid_module modules/mod_fcgid.so\nAddHandler cgi-script .cgi\nFcgidBusyTimeout 3600\nAddHandler fcgid-script .fcgi|g' /usr/local/apache2/conf/httpd.conf
 
 RUN mkdir -p /usr/local/apache2/fcgi/ && cp /tmp/WlzIIPSrv/src/wlziipsrv.fcgi /usr/local/apache2/fcgi/ && chmod -R 777 /usr/local/apache2/fcgi
 
