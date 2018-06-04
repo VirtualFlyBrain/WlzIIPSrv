@@ -109,4 +109,6 @@ RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Ca
 
 RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
 
+RUN mkdir -p /var/run/mod_fcgid/fcgid_shm 
+
 RUN echo "Built $(date +%y-%m-%d-%H-%M-%S)" >> /tmp/wlziip.log
