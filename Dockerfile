@@ -115,3 +115,4 @@ RUN mkdir -p /var/run/mod_fcgid
 RUN chmod -R 777 /var/run/mod_fcgid/
 
 RUN echo "Built $(date +%y-%m-%d-%H-%M-%S)" >> /tmp/wlziip.log
+RUN chmod -R 777 /tmp/wlziip.log
