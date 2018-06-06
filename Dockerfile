@@ -107,12 +107,11 @@ RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory /disk/data/apache/fcgi/>
 
 RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Cache-Control \"public\"\n    Header unset Pragma\n\n" >> /usr/local/apache2/conf/httpd.conf 
 
+RUN sed -i 's|ServerRoot "/usr/local/apache2"|ServerRoot "/usr/local/apache2"\n\nServerName "0.0.0.0"\n\nFcgidIPCDir /var/run/mod_fcgid\nFcgidProcessTableFile /var/run/mod_fcgid/fcgid_shm\n|g' /usr/local/apache2/conf/httpd.conf
+
 RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
 
-RUN mkdir -p /var/run/mod_fcgid/fcgid_shm 
-RUN mkdir -p /var/lib/apache2/fcgid/shm
-RUN chmod -R 777 /var/lib/apache2/fcgid
+RUN mkdir -p /var/run/mod_fcgid
 RUN chmod -R 777 /var/run/mod_fcgid/
-RUN chmod -R 777 /tmp
 
 RUN echo "Built $(date +%y-%m-%d-%H-%M-%S)" >> /tmp/wlziip.log
