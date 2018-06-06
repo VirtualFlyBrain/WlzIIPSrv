@@ -107,7 +107,7 @@ RUN sed -i 's|# "/usr/local/apache2/cgi-bin"|<Directory "/usr/local/apache2/fcgi
 
 RUN echo -e "    Header set Access-Control-Allow-Origin \"*\"\n    Header set Cache-Control \"public\"\n    Header unset Pragma\n\n" >> /usr/local/apache2/conf/httpd.conf 
 
-RUN sed -i 's|ServerRoot "/usr/local/apache2"|ServerRoot "/usr/local/apache2"\n\nServerName "0.0.0.0"\n\nFcgidIPCDir /var/run/mod_fcgid\nFcgidProcessTableFile /var/run/mod_fcgid/fcgid_shm\nFcgidInitialEnv LOGFILE "/tmp/wlziip.log"/nFcgidInitialEnv LOGLEVEL "WARN"/nFcgidInitialEnv JPEG_QUALITY "50"/nFcgidInitialEnv MAX_WLZOBJ_CACHE_SIZE "16000"/nFcgidInitialEnv MAX_WLZOBJ_CACHE_COUNT "4000"/nFcgidInitialEnv MAX_CVT "3000"/nFcgidInitialEnv WLZ_TILE_WIDTH "1025"/nFcgidInitialEnv WLZ_TILE_HEIGHT "1025"/nFcgidInitialEnv MAX_WLZOBJ_CACHE_SIZE "1025"/nFcgidInitialEnv MAX_WLZOBJ_CACHE_COUNT "100"|g' /usr/local/apache2/conf/httpd.conf
+RUN sed -i 's|ServerRoot "/usr/local/apache2"|ServerRoot "/usr/local/apache2"\n\nServerName "0.0.0.0"\n\nFcgidIPCDir /var/run/mod_fcgid\nFcgidProcessTableFile /var/run/mod_fcgid/fcgid_shm\nFcgidInitialEnv LOGFILE "/tmp/wlziip.log"\nFcgidInitialEnv LOGLEVEL "WARN"\nFcgidInitialEnv JPEG_QUALITY "50"\nFcgidInitialEnv MAX_WLZOBJ_CACHE_SIZE "16000"\nFcgidInitialEnv MAX_WLZOBJ_CACHE_COUNT "4000"\nFcgidInitialEnv MAX_CVT "3000"\nFcgidInitialEnv WLZ_TILE_WIDTH "1025"\nFcgidInitialEnv WLZ_TILE_HEIGHT "1025"\nFcgidInitialEnv MAX_WLZOBJ_CACHE_SIZE "1025"\nFcgidInitialEnv MAX_WLZOBJ_CACHE_COUNT "100"\n|g' /usr/local/apache2/conf/httpd.conf
 
 RUN sed -i 's|<h1>.*</h1>|<h1>IIP3D</h1>|g' /usr/local/apache2/htdocs/index.html
 
